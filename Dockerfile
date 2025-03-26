@@ -10,17 +10,17 @@ WORKDIR /pwn
 # Copy challenge files
 COPY chall.c .
 COPY flag.txt .
-COPY ld-2.27.so .
-COPY libc-2.27.so .
 
 # Build the challenge without PIE, but keeping other protections off
-# -no-pie: Ensure addresses are static
-# -fno-stack-protector: Turn off stack canaries
-RUN gcc -o chall chall.c -no-pie -fno-stack-protector -Wl,--dynamic-linker=/pwn/ld-2.27.so -Wl,-rpath=/pwn
-RUN chmod +x chall
+RUN gcc -o chall chall.c -no-pie -fno-stack-protector
+
+# Copy system libc and ld for player download
+RUN cp /lib/x86_64-linux-gnu/libc.so.6 /pwn/libc-2.27.so
+RUN cp /lib64/ld-linux-x86-64.so.2 /pwn/ld-2.27.so
 
 # Secure the flag
 RUN chmod 444 flag.txt
+RUN chmod +x chall
 
 # Expose port for netcat connection
 EXPOSE 3001
